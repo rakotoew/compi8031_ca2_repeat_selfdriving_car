@@ -55,7 +55,7 @@ def img_preprocess(img):
     img = img[60:135, :, :]
     # Convert color to yuv y-brightness, u,v chrominants(color)
     # Recommend in the NVIDIA paper
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
     # Apply Gaussian Blur
     # As suggested by NVIDIA paper
     img = cv2.GaussianBlur(img, (3, 3), 0)
@@ -124,6 +124,13 @@ def img_random_flip(image_to_flip, steering_angle):
     return flipped_image, new_steering_angle
 
 
+def random_shadow(image_to_augment):
+    image_shadow = image_to_augment.copy()
+    b = np.random.uniform(45, 115)
+    a = (image_to_augment.shape[0] // 2 - b) / (image_to_augment.shape[1] // 2)
+    above = np.random.rand() > 0.5
+
+
 def random_augment(image_to_augment, steering_angle):
     augment_image = mpimg.imread(image_to_augment)
     if np.random.rand() < 0.5:
@@ -136,12 +143,6 @@ def random_augment(image_to_augment, steering_angle):
         augment_image, steering_angle = img_random_flip(augment_image, steering_angle)
     return augment_image, steering_angle
 
-
-def random_shadow(image):
-    image_shadow = image.copy()
-    b = np.random.uniform(45, 115)
-    a = (image.shape[0] // 2 - b) / (image.shape[1] // 2)
-    above = np.random.rand() > 0.5
 
     for x in range(image_shadow.shape[1]):
         for y in range(image_shadow.shape[0]):
