@@ -137,6 +137,19 @@ def random_augment(image_to_augment, steering_angle):
     return augment_image, steering_angle
 
 
+def random_shadow(image):
+    image_shadow = image.copy()
+    b = np.random.uniform(45, 115)
+    a = (image.shape[0] // 2 - b) / (image.shape[1] // 2)
+    above = np.random.rand() > 0.5
+
+    for x in range(image_shadow.shape[1]):
+        for y in range(image_shadow.shape[0]):
+            if (a * x + b < y and above) or (a * x + b > y and not above):
+                image_shadow[y, x] = image_shadow[y, x] * 0.4
+    return image_shadow
+
+
 def batch_generator(image_paths, steering_ang, batch_size, is_training):
     while True:
         batch_img = []
