@@ -135,6 +135,7 @@ def random_shadow(image_to_augment):
                 image_shadow[y, x] = image_shadow[y, x] * 0.4
     return image_shadow
 
+
 def random_augment(image_to_augment, steering_angle):
     augment_image = mpimg.imread(image_to_augment)
     if np.random.rand() < 0.5:
@@ -144,11 +145,10 @@ def random_augment(image_to_augment, steering_angle):
     if np.random.rand() < 0.5:
         augment_image = img_random_brightness(augment_image)
     if np.random.rand() < 0.5:
+        augment_image = random_shadow(augment_image)
+    if np.random.rand() < 0.5:
         augment_image, steering_angle = img_random_flip(augment_image, steering_angle)
     return augment_image, steering_angle
-
-
-
 
 
 def batch_generator(image_paths, steering_ang, batch_size, is_training):
@@ -158,13 +158,13 @@ def batch_generator(image_paths, steering_ang, batch_size, is_training):
         for i in range(batch_size):
             random_index = random.randint(0, len(image_paths) - 1)
             if is_training:
-                im, steering = random_augment(image_paths[random_index], steering_ang[random_index])
+                image, steering = random_augment(image_paths[random_index], steering_ang[random_index])
             else:
-                im = mpimg.imread(image_paths[random_index])
+                image = mpimg.imread(image_paths[random_index])
                 steering = steering_ang[random_index]
 
-            im = img_preprocess_no_mread(im)
-            batch_img.append(im)
+            image = img_preprocess_no_mread(image)
+            batch_img.append(image)
             batch_steering.append(steering)
         yield (np.asarray(batch_img), np.asarray(batch_steering))
 
@@ -215,7 +215,6 @@ def main():
     X_train, X_valid, y_train, y_valid = train_test_split(image_paths, steering, test_size=0.2, random_state=6)
     print('Training samples: {}\nValid Samples: {}'.format(len(X_train), len(X_valid)))
 
-
     # plotting set repartition
     fig, axes = plt.subplots(1, 2, figsize=(12, 4))
     axes[0].hist(y_train, bins=num_bins, width=0.05, color='blue')
@@ -224,7 +223,7 @@ def main():
     axes[1].set_title('Validation set')
     plt.show()
 
-    #plotting example image and processed image
+    # plotting example image and processed image
     image = image_paths[100]
     original_image = mpimg.imread(image)
     preprocessed_image = img_preprocess(image)
@@ -236,11 +235,11 @@ def main():
     axes[1].set_title('Preprocessed Image')
     plt.show()
 
-    #preprocessing all image
+    # preprocessing all image
     x_train_gen, y_train_gen = next(batch_generator(X_train, y_train, 1, 1))
     x_valid_gen, y_valid_gen = next(batch_generator(X_valid, y_valid, 1, 0))
 
-    #showing trainign image and val image
+    # showing trainign image and val image
     fig, axs = plt.subplots(1, 2, figsize=(15, 10))
     fig.tight_layout()
     axs[0].imshow(x_train_gen[0])
@@ -249,7 +248,7 @@ def main():
     axs[1].set_title("Validation Image")
     plt.show()
 
-    #display all different augmentation
+    # display all different augmentation
 
     image = image_paths[random.randint(0, 1000)]
     original_image = mpimg.imread(image)
@@ -324,7 +323,7 @@ def main():
         axs[i][1].set_title("Augmented Image")
     plt.show()
 
-    #creating model
+    # creating model
     model = nvidia_model()
     print(model.summary())
 
@@ -344,7 +343,7 @@ def main():
     plt.xlabel('Epoch')
     plt.show()
 
-    #saving model
+    # saving model
     model.save(MODEL)
 
 
