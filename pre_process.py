@@ -14,12 +14,17 @@ import pandas as pd
 import ntpath
 import random
 
-# MODEL = 'model_first_track_3lap.h5'
-# DATADIR = './data_first_track/'
-# MODEL = 'model_second_track_1lap.h5'
-# DATADIR = '/home/rakotoew/Documents/self_driving/data_second_track_1LAP/'
+# Data for 8 lap on track 1
+DATADIR = './Data/first_track_8lap'
+MODEL = 'model_1track_8lap.h5'
+
+# Data for 15 lap on track 1
 DATADIR = './Data/first_track_15lap'
 MODEL = 'model_1track_15lap.h5'
+
+# Data for 15 lap on track 1 and 2 lap on track 2
+DATADIR = './Data/first_track_15lap_track2_2lap'
+MODEL = 'model_1track_15lap_track2.h5'
 
 
 def path_leaf(path):
