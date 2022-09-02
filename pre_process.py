@@ -171,7 +171,7 @@ def batch_generator(image_paths, steering_ang, batch_size, is_training):
 def main():
     columns = ['center', 'left', 'right', 'steering', 'throttle', 'reverse', 'speed']
     data = pd.read_csv(os.path.join(DATADIR, 'driving_log.csv'), names=columns)
-    # pd.set_option('max_columns', 7)
+    pd.set_option('max_columns', 7)
     print(data.head())
 
     data['center'] = data['center'].apply(path_leaf)
@@ -214,6 +214,8 @@ def main():
     X_train, X_valid, y_train, y_valid = train_test_split(image_paths, steering, test_size=0.2, random_state=6)
     print('Training samples: {}\nValid Samples: {}'.format(len(X_train), len(X_valid)))
 
+
+    # plotting set repartition
     fig, axes = plt.subplots(1, 2, figsize=(12, 4))
     axes[0].hist(y_train, bins=num_bins, width=0.05, color='blue')
     axes[0].set_title('Training set')
@@ -221,6 +223,7 @@ def main():
     axes[1].set_title('Validation set')
     plt.show()
 
+    #plotting example image and processed image
     image = image_paths[100]
     original_image = mpimg.imread(image)
     preprocessed_image = img_preprocess(image)
@@ -232,8 +235,11 @@ def main():
     axes[1].set_title('Preprocessed Image')
     plt.show()
 
+    #preprocessing all image
     x_train_gen, y_train_gen = next(batch_generator(X_train, y_train, 1, 1))
     x_valid_gen, y_valid_gen = next(batch_generator(X_valid, y_valid, 1, 0))
+
+    #showing trainign image and val image
     fig, axs = plt.subplots(1, 2, figsize=(15, 10))
     fig.tight_layout()
     axs[0].imshow(x_train_gen[0])
@@ -241,6 +247,8 @@ def main():
     axs[1].imshow(x_valid_gen[0])
     axs[1].set_title("Validation Image")
     plt.show()
+
+    #display all different augmentation
 
     image = image_paths[random.randint(0, 1000)]
     original_image = mpimg.imread(image)
@@ -288,6 +296,17 @@ def main():
     axs[1].set_title("Flipped Image" + "Steering Angle: " + str(flipped_angle))
     plt.show()
 
+    image = image_paths[random.randint(0, len(image_paths))]
+    original_image = mpimg.imread(image)
+    shadow_image = random_shadow(original_image)
+    fig, axs = plt.subplots(1, 2, figsize=(15, 10))
+    fig.tight_layout()
+    axs[0].imshow(original_image)
+    axs[0].set_title("Original Image")
+    axs[1].imshow(shadow_image)
+    axs[1].set_title("Image with shadow")
+    plt.show()
+
     ncols = 2
     nrows = 10
     fig, axs = plt.subplots(nrows, ncols, figsize=(15, 50))
@@ -304,15 +323,19 @@ def main():
         axs[i][1].set_title("Augmented Image")
     plt.show()
 
+    #creating model
     model = nvidia_model()
     print(model.summary())
 
+    # training model
     h = model.fit(batch_generator(X_train, y_train, 100, 1), steps_per_epoch=100,
                   epochs=40,
                   validation_data=batch_generator(X_valid, y_valid, 100, 0),
                   validation_steps=200,
                   verbose=1,
                   shuffle=1)
+
+    # Showing loss of val and training set
     plt.plot(h.history['loss'])
     plt.plot(h.history['val_loss'])
     plt.legend(['training', 'validation'])
@@ -320,6 +343,7 @@ def main():
     plt.xlabel('Epoch')
     plt.show()
 
+    #saving model
     model.save(MODEL)
 
 
